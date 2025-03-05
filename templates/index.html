@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <!-- Ensures mobile devices use correct scale -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Degen Bot - Cyberpunk Style</title>
+
+    <!-- Google Fonts:
+         1) Orbitron for headings
+         2) Montserrat for body text (more legible)
+    -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Montserrat:wght@400;600&display=swap"
+      rel="stylesheet"
+    >
+
+    <!-- Font Awesome for icons (dice, palette, cocktail, etc.) -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      integrity="sha512-acFTf5orPOB1Ri9q8JUZDI9m/yN4vIrM8V3q+0pDcJGv9H38n6sHDweJbl+XwSLZd7DAZplJ0lsZ2XzKp5BnUw=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+
+    <style>
+      /* Overall color scheme and background */
+      body {
+        margin: 0;
+        padding: 0;
+        background: linear-gradient(135deg, #080808 0%, #1c1c1c 100%);
+        color: #00ff9c;
+        font-family: 'Montserrat', sans-serif; /* Montserrat for main text */
+      }
+
+      /* HEADINGS: Use Orbitron */
+      h1, h2 {
+        text-transform: uppercase;
+        color: #00fff7;
+        text-shadow: 0 0 5px rgba(0,255,255,0.7);
+        font-family: 'Orbitron', sans-serif;
+      }
+
+      .container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 2rem;
+      }
+
+      /* Center the top section (image + heading) */
+      .top-center {
+        text-align: center;
+        margin-bottom: 1rem;
+      }
+
+      /* Cartoon image (Degen Guy) */
+      .degen-img {
+        display: block;
+        margin: 0 auto 0.5rem;
+        max-width: 150px;
+        border: 2px solid #00ff9c;
+        box-shadow: 0 0 8px rgba(0,255,156,0.5);
+        border-radius: 8px;
+      }
+
+      /* Neon style buttons */
+      .btn {
+        font-family: 'Orbitron', sans-serif;
+        background: #181818;
+        color: #00ff9c;
+        border: 1px solid #00ff9c;
+        text-shadow: 0 0 4px rgba(0, 255, 156, 0.7);
+        box-shadow: 0 0 6px rgba(0,255,156,0.5);
+        transition: background 0.3s, color 0.3s, box-shadow 0.3s;
+        cursor: pointer;
+        margin: 0.5rem 0;
+        padding: 0.5rem 1rem;
+      }
+      .btn:hover {
+        background: #00ff9c;
+        color: #181818;
+        box-shadow: 0 0 10px rgba(0,255,156,1);
+      }
+
+      /* For directive text (#tipDisplay) - purple with letter spacing */
+      .alert-info {
+        background: rgba(0,255,156,0.1);
+        border: 1px solid #00ff9c;
+        color: #c300ff;
+        letter-spacing: 0.05em;
+      }
+
+      /* Checkboxes */
+      .form-check-input:checked {
+        background-color: #00ff9c;
+        border-color: #00ff9c;
+      }
+      .form-check-label {
+        cursor: pointer;
+      }
+
+      /* Horizontal rule */
+      hr {
+        border: none;
+        border-top: 1px solid #00ff9c;
+        margin: 2rem 0;
+      }
+
+      /* Generator results in neon pink */
+      .generator-result {
+        display: inline-block;
+        margin-left: 1rem;
+        font-weight: bold;
+        color: #ff00de;
+        text-shadow: 0 0 5px rgba(255,0,222,0.7);
+      }
+
+      /* Mobile-friendly */
+      @media (max-width: 600px) {
+        .container {
+          max-width: 95%;
+          padding: 1rem;
+        }
+      }
+
+      /* Icon spacing */
+      .btn i {
+        margin-right: 0.5rem;
+      }
+    </style>
+  </head>
+  <body>
+
+    <div class="container top-center">
+      <!-- Cartoon image (hosted in static/images/degen_cartoon.png) -->
+      <img
+        src="{{ url_for('static', filename='images/degen_cartoon.png') }}"
+        alt="Degen Cartoon Guy"
+        class="degen-img"
+      />
+      <h1>Degen Bot</h1>
+    </div>
+
+    <div class="container">
+      <p>Select the game categories you want tips for:</p>
+
+      <form id="categoryForm">
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" value="Slots" id="slots">
+          <label class="form-check-label" for="slots">Slots</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" value="Roulette" id="roulette">
+          <label class="form-check-label" for="roulette">Roulette</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" value="Break Actions" id="breakActions">
+          <label class="form-check-label" for="breakActions">Break Actions</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" value="Casino Actions" id="casinoActions">
+          <label class="form-check-label" for="casinoActions">Casino Actions</label>
+        </div>
+      </form>
+
+      <button id="getTip" class="btn">
+        <i class="fas fa-random"></i> Degen Time
+      </button>
+      <div id="tipDisplay" class="alert alert-info mt-4" style="display:none;"></div>
+
+      <hr>
+
+      <h2>Random Generators</h2>
+      <p>Roulette Number, Color, Odd/Even, Multi-Number, and Drinks:</p>
+
+      <!-- Single number -->
+      <button id="randomNumberBtn" class="btn">
+        <i class="fas fa-dice"></i> Random Roulette Number
+      </button>
+      <span id="randomNumberDisplay" class="generator-result"></span>
+      <br>
+
+      <!-- Color -->
+      <button id="randomColorBtn" class="btn">
+        <i class="fas fa-palette"></i> Random Color
+      </button>
+      <span id="randomColorDisplay" class="generator-result"></span>
+      <br>
+
+      <!-- Odd/Even -->
+      <button id="randomOddEvenBtn" class="btn">
+        <i class="fas fa-question"></i> Random Odd/Even
+      </button>
+      <span id="randomOddEvenDisplay" class="generator-result"></span>
+      <br>
+
+      <!-- Multi-number generator -->
+      <button id="randomMultiBtn" class="btn">
+        <i class="fas fa-layer-group"></i> Random Multi-Numbers
+      </button>
+      <span id="randomMultiDisplay" class="generator-result"></span>
+      <br><br>
+
+      <!-- NEW: Drink Generator -->
+      <button id="randomDrinkBtn" class="btn">
+        <i class="fas fa-cocktail"></i> Random Drink
+      </button>
+      <span id="randomDrinkDisplay" class="generator-result"></span>
+    </div>
+
+    <!-- SCRIPT AT THE BOTTOM -->
+    <script>
+      // "Degen Time" for random tip
+      document.getElementById('getTip').addEventListener('click', function(){
+        const checkboxes = document.querySelectorAll('#categoryForm input[type="checkbox"]');
+        let categories = [];
+        checkboxes.forEach(cb => {
+          if(cb.checked) categories.push(cb.value);
+        });
+        fetch('/api/random-tip', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ categories: categories })
+        })
+        .then(response => response.json())
+        .then(data => {
+          const tipDisplay = document.getElementById('tipDisplay');
+          tipDisplay.style.display = 'block';
+          tipDisplay.innerText = data.tip;
+        })
+        .catch(err => console.error("Fetch error:", err));
+      });
+
+      // Random single roulette number
+      document.getElementById('randomNumberBtn').addEventListener('click', function(){
+        fetch('/api/random-roulette-number')
+          .then(response => response.json())
+          .then(data => {
+            document.getElementById('randomNumberDisplay').innerText = data.result;
+          })
+          .catch(err => console.error("Fetch error:", err));
+      });
+
+      // Random color
+      document.getElementById('randomColorBtn').addEventListener('click', function(){
+        fetch('/api/random-color')
+          .then(response => response.json())
+          .then(data => {
+            document.getElementById('randomColorDisplay').innerText = data.result;
+          })
+          .catch(err => console.error("Fetch error:", err));
+      });
+
+      // Random odd/even
+      document.getElementById('randomOddEvenBtn').addEventListener('click', function(){
+        fetch('/api/random-odd-even')
+          .then(response => response.json())
+          .then(data => {
+            document.getElementById('randomOddEvenDisplay').innerText = data.result;
+          })
+          .catch(err => console.error("Fetch error:", err));
+      });
+
+      // Multi-number generator
+      document.getElementById('randomMultiBtn').addEventListener('click', function(){
+        fetch('/api/random-roulette-multi')
+          .then(response => response.json())
+          .then(data => {
+            document.getElementById('randomMultiDisplay').innerText = data.result.join(", ");
+          })
+          .catch(err => console.error("Fetch error:", err));
+      });
+
+      // NEW: Drink generator
+      document.getElementById('randomDrinkBtn').addEventListener('click', function(){
+        fetch('/api/random-drink')
+          .then(response => response.json())
+          .then(data => {
+            document.getElementById('randomDrinkDisplay').innerText = data.result;
+          })
+          .catch(err => console.error("Fetch error:", err));
+      });
+    </script>
+  </body>
+</html>
